@@ -1,0 +1,83 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">📖 Ringkasan Materi</h1>
+    <p class="text-muted">Daftar ringkasan materi yang telah dibuat dari PDF</p>
+  </div>
+  <a href="{{ url_for('summary.generate') }}" class="btn btn-primary">
+    ➕ Buat Ringkasan Baru
+  </a>
+</div>
+
+{% if summaries %}
+<div class="row g-3">
+  {% for summary in summaries %}
+  <div class="col-md-6 col-lg-4">
+    <div
+      class="card border-0 shadow-sm h-100 cursor-pointer"
+      style="
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      "
+      onmouseover="
+        this.style.transform = 'translateY(-4px)';
+        this.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+      "
+      onmouseout="
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+      "
+    >
+      <div class="card-body">
+        <h5 class="card-title text-truncate">✨ {{ summary.title }}</h5>
+        <p class="card-text text-muted small">📄 {{ summary.filename }}</p>
+        <p class="card-text text-muted small">
+          📅 {{ summary.generated_at[:10] }} {{ summary.generated_at[11:16] }}
+        </p>
+        <div style="display: flex; gap: 8px; margin-top: 12px">
+          <a
+            href="{{ url_for('summary.summary_detail', summary_id=summary.id) }}"
+            class="btn btn-sm btn-primary flex-grow-1"
+          >
+            👁️ Lihat
+          </a>
+          <form
+            method="post"
+            action="{{ url_for('summary.delete_summary', summary_id=summary.id) }}"
+            style="display: inline"
+            onsubmit="return confirm('Yakin ingin menghapus?');"
+          >
+            <button
+              type="submit"
+              class="btn btn-sm btn-danger"
+              style="width: 44px"
+            >
+              🗑️
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align: center; padding: 60px 24px">
+  <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5">📝</div>
+  <h5 style="font-weight: 600; color: #1f2937; margin-bottom: 8px">
+    Belum Ada Ringkasan
+  </h5>
+  <p style="color: #6b7280; margin-bottom: 24px">
+    Mulai dengan upload materi dan generate ringkasan pertama Anda
+  </p>
+  <div class="d-flex gap-2 justify-content-center">
+    <a href="{{ url_for('upload.upload') }}" class="btn btn-primary">
+      📤 Upload PDF
+    </a>
+    <a href="{{ url_for('summary.generate') }}" class="btn btn-outline-primary">
+      ✨ Generate Ringkasan
+    </a>
+  </div>
+</div>
+{% endif %} {% endblock %}

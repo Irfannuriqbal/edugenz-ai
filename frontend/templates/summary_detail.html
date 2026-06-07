@@ -1,0 +1,195 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">📖 {{ summary.title }}</h1>
+    <p class="text-muted">
+      📄 {{ summary.filename }} • 📅 {{ summary.generated_at[:10] }} {{
+      summary.generated_at[11:16] }}
+    </p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="summary-container">
+      <!-- Content -->
+      <div class="summary-content">
+        <div
+          style="
+            line-height: 1.8;
+            color: #374151;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+          "
+        >
+          {{ summary.summary }}
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div
+        style="
+          margin-top: 32px;
+          padding-top: 24px;
+          border-top: 1px solid #e5e7eb;
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+        "
+      >
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="copySummary()"
+          title="Copy ringkasan ke clipboard"
+        >
+          📋 Copy Ringkasan
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="downloadSummary('{{ summary.title }}', '{{ summary.summary | replace('\\', '\\\\') | replace('\'', '\\\'') }}')"
+          title="Download sebagai file TXT"
+        >
+          ⬇️ Download TXT
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          onclick="window.print()"
+          title="Cetak ringkasan"
+        >
+          🖨️ Cetak
+        </button>
+        <form
+          method="post"
+          action="{{ url_for('summary.delete_summary', summary_id=summary.id) }}"
+          style="display: inline"
+          onsubmit="return confirm('Yakin ingin menghapus ringkasan ini?');"
+        >
+          <button type="submit" class="btn btn-danger" title="Hapus ringkasan">
+            🗑️ Hapus
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Info -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm" style="position: sticky; top: 20px">
+      <div class="card-body">
+        <h5 class="card-title" style="margin-bottom: 16px">ℹ️ Informasi</h5>
+
+        <div style="margin-bottom: 16px">
+          <h6
+            style="
+              font-size: 12px;
+              color: #6b7280;
+              font-weight: 600;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            "
+          >
+            Judul
+          </h6>
+          <p style="margin: 0; color: #1f2937; font-weight: 500">
+            {{ summary.title }}
+          </p>
+        </div>
+
+        <div style="margin-bottom: 16px">
+          <h6
+            style="
+              font-size: 12px;
+              color: #6b7280;
+              font-weight: 600;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            "
+          >
+            File Sumber
+          </h6>
+          <p
+            style="
+              margin: 0;
+              color: #1f2937;
+              font-weight: 500;
+              word-break: break-word;
+            "
+          >
+            {{ summary.filename }}
+          </p>
+        </div>
+
+        <div style="margin-bottom: 16px">
+          <h6
+            style="
+              font-size: 12px;
+              color: #6b7280;
+              font-weight: 600;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            "
+          >
+            Tanggal Dibuat
+          </h6>
+          <p style="margin: 0; color: #1f2937; font-weight: 500">
+            {{ summary.generated_at[:10] }} {{ summary.generated_at[11:16] }}
+          </p>
+        </div>
+
+        <div style="margin-bottom: 16px">
+          <h6
+            style="
+              font-size: 12px;
+              color: #6b7280;
+              font-weight: 600;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            "
+          >
+            Panjang Konten
+          </h6>
+          <p style="margin: 0; color: #1f2937; font-weight: 500">
+            {{ summary.summary | length }} karakter
+          </p>
+        </div>
+
+        <hr style="margin: 16px 0" />
+
+        <a
+          href="{{ url_for('summary.generate') }}"
+          class="btn btn-primary w-100"
+        >
+          ✨ Buat Ringkasan Baru
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copySummary() {
+    const text = document.querySelector(".summary-content").innerText;
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        alert("✓ Ringkasan berhasil disalin ke clipboard!");
+      })
+      .catch((err) => {
+        alert("Gagal menyalin ringkasan");
+      });
+  }
+
+  function downloadSummary(title, content) {
+    const element = document.createElement("a");
+    const file = new Blob([content], { type: "text/plain" });
+    element.href = URL.createObjectURL(file);
+    element.download = title + ".txt";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+</script>
+{% endblock %}

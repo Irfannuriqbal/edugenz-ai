@@ -1,0 +1,112 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">📊 Dashboard</h1>
+    <p class="text-muted">Ringkasan aktivitas EduGenZ AI Anda</p>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card primary">
+      <div class="stat-card-label">📚 Total Materi</div>
+      <div class="stat-card-value">{{ total_materi }}</div>
+      <div class="stat-card-desc">File PDF yang diupload</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card success">
+      <div class="stat-card-label">✨ Total Ringkasan</div>
+      <div class="stat-card-value">{{ total_summary }}</div>
+      <div class="stat-card-desc">Ringkasan yang dibuat</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card warning">
+      <div class="stat-card-label">🎯 Total Quiz</div>
+      <div class="stat-card-value">{{ total_quiz }}</div>
+      <div class="stat-card-desc">Quiz yang dibuat</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card danger">
+      <div class="stat-card-label">📈 Rata-rata Nilai</div>
+      <div class="stat-card-value">{{ avg_score }}%</div>
+      <div class="stat-card-desc">Dari semua quiz</div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title">⚡ Akses Cepat</h5>
+    <div class="row g-3 mt-3">
+      {% for action in quick_actions %}
+      <div class="col-sm-6 col-lg-3">
+        <a href="{{ action.url }}" class="btn btn-primary w-100 py-3"
+          >{{ action.label }}</a
+        >
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activities -->
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">🕐 Aktivitas Terbaru</h5>
+        {% if recent_activities %}
+        <div class="activity-list mt-3">
+          {% for activity in recent_activities %}
+          <div class="activity-item">
+            <div class="activity-icon">
+              {% if activity.type == 'Upload' %} 📄 {% elif activity.type ==
+              'Summary' %} ✨ {% elif activity.type == 'Quiz' %} 🎯 {% endif %}
+            </div>
+            <div class="activity-content">
+              <div class="activity-desc">{{ activity.description }}</div>
+              <div class="activity-time">
+                {{ activity.timestamp[:10] }} {{ activity.timestamp[11:16] }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px 20px; color: #9ca3af">
+          <div style="font-size: 32px; margin-bottom: 12px">📋</div>
+          <p>Belum ada aktivitas</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">ℹ️ Tentang Platform</h5>
+        <p class="text-muted">
+          EduGenZ AI adalah platform pembelajaran adaptif berbasis Artificial
+          Intelligence yang mendukung SDGs Pendidikan.
+        </p>
+        <div style="margin-top: 20px">
+          <h6 style="font-weight: 600; margin-bottom: 12px">Fitur Utama:</h6>
+          <ul style="margin: 0; padding-left: 20px">
+            <li>📤 Upload dan kelola materi PDF</li>
+            <li>💬 Chatbot AI bertenaga Gemini</li>
+            <li>📖 Generate ringkasan otomatis</li>
+            <li>🎯 Buat quiz interaktif</li>
+            <li>📊 Tracking progress pembelajaran</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

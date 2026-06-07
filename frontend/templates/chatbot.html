@@ -1,0 +1,204 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">💬 AI Chatbot</h1>
+    <p class="text-muted">
+      Tanyakan apapun kepada Gemini AI dan dapatkan jawaban edukatif
+    </p>
+  </div>
+</div>
+
+<div class="chat-container">
+  <!-- Chat History -->
+  <div class="chat-history" id="chatHistory">
+    {% if not response %}
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #9ca3af;
+      "
+    >
+      <div style="text-align: center">
+        <div style="font-size: 64px; margin-bottom: 16px">💭</div>
+        <div style="font-size: 18px; font-weight: 600">Mulai Percakapan</div>
+        <div style="font-size: 14px; margin-top: 8px">
+          Tanyakan apa saja dan Gemini AI akan membantu Anda!
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <!-- User Message -->
+    <div class="message-group user">
+      <div style="width: 100%; max-width: 70%">
+        <div
+          class="message-label text-end"
+          style="
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+          "
+        >
+          <span>Anda</span>
+          <span style="font-size: 20px">👤</span>
+        </div>
+        <div class="message-bubble user">{{ response.question }}</div>
+        <div class="message-label text-end" style="font-size: 11px">
+          {{ response.timestamp if response.timestamp else 'Baru' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Response -->
+    <div class="message-group ai">
+      <div style="width: 100%; max-width: 70%">
+        <div
+          class="message-label"
+          style="display: flex; align-items: center; gap: 8px"
+        >
+          <span style="font-size: 20px">🤖</span>
+          <span>EduGenZ AI</span>
+        </div>
+        <div class="message-bubble ai">{{ response.answer }}</div>
+        <div class="message-label" style="font-size: 11px">Baru saja</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" style="display: none; margin-top: 16px">
+      <div class="message-group ai">
+        <div
+          style="
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+          "
+        >
+          <div
+            style="
+              width: 8px;
+              height: 8px;
+              background: #cbd5e1;
+              border-radius: 50%;
+              animation: bounce 1.4s infinite;
+            "
+          ></div>
+          <div
+            style="
+              width: 8px;
+              height: 8px;
+              background: #cbd5e1;
+              border-radius: 50%;
+              animation: bounce 1.4s infinite;
+              animation-delay: 0.2s;
+            "
+          ></div>
+          <div
+            style="
+              width: 8px;
+              height: 8px;
+              background: #cbd5e1;
+              border-radius: 50%;
+              animation: bounce 1.4s infinite;
+              animation-delay: 0.4s;
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Input Area -->
+  <div class="chat-input-area">
+    <form method="post" class="chat-form" id="chatForm">
+      <textarea
+        id="question"
+        name="question"
+        class="form-control"
+        placeholder="Ketik pertanyaan Anda di sini..."
+        rows="3"
+        style="resize: none"
+      ></textarea>
+      <button type="submit" class="btn btn-primary" id="sendBtn">
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          role="status"
+          aria-hidden="true"
+          style="display: none"
+          id="sendSpinner"
+        ></span>
+        Kirim
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  @keyframes bounce {
+    0%,
+    80%,
+    100% {
+      opacity: 0.5;
+      transform: translateY(0);
+    }
+    40% {
+      opacity: 1;
+      transform: translateY(-8px);
+    }
+  }
+</style>
+
+<script>
+  // Auto scroll to bottom
+  function scrollToBottom() {
+    const chatHistory = document.getElementById("chatHistory");
+    if (chatHistory) {
+      setTimeout(() => {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }, 100);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    scrollToBottom();
+
+    // Submit form handling
+    const chatForm = document.getElementById("chatForm");
+    const sendBtn = document.getElementById("sendBtn");
+    const sendSpinner = document.getElementById("sendSpinner");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const chatHistory = document.getElementById("chatHistory");
+
+    chatForm.addEventListener("submit", function (e) {
+      // Remove empty state if exists
+      const emptyState = chatHistory.querySelector('[style*="height: 100%"]');
+      if (emptyState) {
+        emptyState.remove();
+      }
+
+      // Show loading indicator
+      sendBtn.disabled = true;
+      sendSpinner.style.display = "inline-block";
+      loadingIndicator.style.display = "block";
+      scrollToBottom();
+    });
+
+    // Auto scroll when page loads with response
+    window.addEventListener("load", scrollToBottom);
+  });
+
+  // Enable send button on textarea input
+  document.getElementById("question").addEventListener("input", function () {
+    const sendBtn = document.getElementById("sendBtn");
+    sendBtn.disabled = this.value.trim() === "";
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">🎯 Quiz Generator</h1>
+    <p class="text-muted">Daftar quiz yang tersedia untuk dierjakan</p>
+  </div>
+  <a href="{{ url_for('quiz.generate') }}" class="btn btn-primary">
+    ➕ Buat Quiz Baru
+  </a>
+</div>
+
+{% if quizzes %}
+<div class="row g-3">
+  {% for quiz in quizzes %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title text-truncate">🎯 {{ quiz.title }}</h5>
+        <p class="card-text text-muted small">📄 {{ quiz.filename }}</p>
+        <p class="card-text text-muted small">
+          📅 {{ quiz.generated_at[:10] }} {{ quiz.generated_at[11:16] }}
+        </p>
+        <div style="display: flex; gap: 8px; margin-top: 12px">
+          <a
+            href="{{ url_for('quiz.attempt', quiz_id=quiz.id) }}"
+            class="btn btn-sm btn-primary flex-grow-1"
+          >
+            ▶️ Mulai
+          </a>
+          <form
+            method="post"
+            action="{{ url_for('quiz.delete_quiz', quiz_id=quiz.id) }}"
+            style="display: inline"
+            onsubmit="
+              return confirm('Yakin ingin menghapus quiz dan semua hasilnya?');
+            "
+          >
+            <button
+              type="submit"
+              class="btn btn-sm btn-danger"
+              style="width: 44px"
+            >
+              🗑️
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align: center; padding: 60px 24px">
+  <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5">📝</div>
+  <h5 style="font-weight: 600; color: #1f2937; margin-bottom: 8px">
+    Belum Ada Quiz
+  </h5>
+  <p style="color: #6b7280; margin-bottom: 24px">
+    Mulai dengan upload materi dan generate quiz pertama Anda
+  </p>
+  <div class="d-flex gap-2 justify-content-center">
+    <a href="{{ url_for('upload.upload') }}" class="btn btn-primary">
+      📤 Upload PDF
+    </a>
+    <a href="{{ url_for('quiz.generate') }}" class="btn btn-outline-primary">
+      🎯 Generate Quiz
+    </a>
+  </div>
+</div>
+{% endif %} {% endblock %}

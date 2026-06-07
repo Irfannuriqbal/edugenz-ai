@@ -1,0 +1,208 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">📖 Summary Generator</h1>
+    <p class="text-muted">
+      Generate ringkasan otomatis dari materi PDF untuk pembelajaran yang lebih
+      efisien
+    </p>
+  </div>
+  <a href="{{ url_for('summary.summary') }}" class="btn btn-outline-primary">
+    📋 Riwayat Ringkasan
+  </a>
+</div>
+
+<!-- Summary Generator Form -->
+<div class="row">
+  <div class="col-lg-5 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-3">✨ Buat Ringkasan</h5>
+
+        <form method="post" id="summaryForm">
+          <div class="mb-3">
+            <label for="filename" class="form-label fw-600"
+              >📚 Pilih Materi</label
+            >
+            <select id="filename" name="filename" class="form-select">
+              <option value="">-- Pilih materi --</option>
+              {% for item in uploads %}
+              <option value="{{ item.filename }}">{{ item.filename }}</option>
+              {% endfor %}
+            </select>
+            {% if not uploads %}
+            <small class="text-muted d-block mt-2">
+              ℹ️ Upload materi terlebih dahulu
+            </small>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <small class="text-muted d-block" style="line-height: 1.6">
+              💡 Ringkasan akan dibuat secara otomatis menggunakan AI Gemini.
+              Proses memakan waktu beberapa detik.
+            </small>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" id="summaryBtn">
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              style="display: none"
+              id="summarySpinner"
+            ></span>
+            🚀 Generate Ringkasan
+          </button>
+        </form>
+
+        {% if uploads %}
+        <div
+          style="
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+          "
+        >
+          <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px">
+            📊 Materi Tersedia:
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            {% for item in uploads %}
+            <small style="color: #374151">✓ {{ item.filename }}</small>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Result -->
+  {% if summary_text %}
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+          "
+        >
+          <div style="flex: 1">
+            <h5 style="margin: 0; font-weight: 700">✨ Preview Ringkasan</h5>
+            <small style="color: #6b7280">{{ selected_file }}</small>
+          </div>
+          <div
+            style="
+              background: #dcfce7;
+              color: #166534;
+              padding: 6px 12px;
+              border-radius: 6px;
+              font-size: 13px;
+              font-weight: 600;
+            "
+          >
+            Siap ✓
+          </div>
+        </div>
+
+        <div
+          style="
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 16px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #374151;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+          "
+        >
+          {{ summary_text }}
+        </div>
+
+        <div
+          style="
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+          "
+        >
+          <small style="color: #6b7280; font-size: 12px">
+            📝 Panjang ringkasan: {{ summary_text|length }} karakter
+          </small>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px">
+          <button
+            type="button"
+            class="btn btn-outline-secondary flex-grow-1"
+            onclick="printSummary()"
+          >
+            🖨️ Cetak
+          </button>
+          <a
+            href="{{ url_for('summary.summary') }}"
+            class="btn btn-secondary flex-grow-1"
+          >
+            ← Kembali
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- Empty State -->
+  <div class="col-lg-7">
+    <div
+      style="
+        text-align: center;
+        padding: 60px 24px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+      "
+    >
+      <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5">📝</div>
+      {% if uploads %}
+      <h5 style="font-weight: 600; color: #1f2937; margin-bottom: 8px">
+        Belum Ada Ringkasan
+      </h5>
+      <p style="color: #6b7280">
+        Pilih materi dan klik "Generate Ringkasan" untuk membuat ringkasan
+      </p>
+      {% else %}
+      <h5 style="font-weight: 600; color: #1f2937; margin-bottom: 8px">
+        Tidak Ada Materi
+      </h5>
+      <p style="color: #6b7280; margin-bottom: 20px">
+        Upload PDF terlebih dahulu untuk membuat ringkasan
+      </p>
+      <a href="{{ url_for('upload.upload') }}" class="btn btn-primary">
+        📤 Upload Materi
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  function printSummary() {
+    window.print();
+  }
+
+  document
+    .getElementById("summaryForm")
+    .addEventListener("submit", function (e) {
+      document.getElementById("summaryBtn").disabled = true;
+      document.getElementById("summarySpinner").style.display = "inline-block";
+    });
+</script>
+{% endblock %}

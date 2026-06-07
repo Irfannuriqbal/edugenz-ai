@@ -1,0 +1,80 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Node/Frontend build
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Documentation
+*.md
+AUDIT_CHECKLIST.md
+FINAL_SUMMARY.md
+FIXES_SUMMARY.md
+STATUS_REPORT.md
+UI_UX_UPDATE.md
+
+# Test files
+test_*.py
+*_test.py
+inspect_genai.py
+verify_setup.py
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Root files
+run.py
+verify_setup.py
+inspect_genai.py
+test_*.py

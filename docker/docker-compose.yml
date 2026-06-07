@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  edugenz-ai:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: edugenz-ai-app
+    ports:
+      - "5000:5000"
+    volumes:
+      # Data persistence
+      - uploads_data:/app/frontend/static/uploads
+      - db_data:/app/backend/database
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=backend.app:app
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/backend/database/edugenz.db}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - edugenz-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  uploads_data:
+    driver: local
+  db_data:
+    driver: local
+
+networks:
+  edugenz-network:
+    driver: bridge

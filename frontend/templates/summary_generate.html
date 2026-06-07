@@ -1,0 +1,79 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">📖 Buat Ringkasan Baru</h1>
+    <p class="text-muted">
+      Generate ringkasan otomatis dari PDF yang telah diunggah
+    </p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-4">📚 Pilih Materi</h5>
+
+        <form method="post" id="summaryForm">
+          <div class="mb-3">
+            <label for="filename" class="form-label fw-600">File PDF</label>
+            <select id="filename" name="filename" class="form-select" required>
+              <option value="">-- Pilih materi untuk diringkas --</option>
+              {% for item in uploads %}
+              <option value="{{ item.filename }}">{{ item.filename }}</option>
+              {% endfor %}
+            </select>
+            {% if not uploads %}
+            <small class="text-muted d-block mt-2">
+              ℹ️
+              <a href="{{ url_for('upload.upload') }}"
+                >Upload materi terlebih dahulu</a
+              >
+              untuk membuat ringkasan
+            </small>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" id="summaryBtn">
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              style="display: none"
+              id="summarySpinner"
+            ></span>
+            ✨ Generate Ringkasan
+          </button>
+        </form>
+
+        <div class="alert alert-info mt-4" role="alert">
+          <strong>💡 Tips:</strong> Ringkasan akan dihasilkan menggunakan AI dan
+          disimpan untuk akses nanti.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-4">📋 Cara Menggunakan</h5>
+        <ol class="mb-0" style="color: #6b7280; line-height: 2">
+          <li>Pastikan Anda sudah upload file PDF</li>
+          <li>Pilih file yang ingin diringkas</li>
+          <li>Klik tombol "Generate Ringkasan"</li>
+          <li>Tunggu AI menganalisis konten PDF</li>
+          <li>Ringkasan akan tersimpan dan dapat dilihat kapan saja</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document
+    .getElementById("summaryForm")
+    .addEventListener("submit", function (e) {
+      document.getElementById("summaryBtn").disabled = true;
+      document.getElementById("summarySpinner").style.display = "inline-block";
+    });
+</script>
+{% endblock %}

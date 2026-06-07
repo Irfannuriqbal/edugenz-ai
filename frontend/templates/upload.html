@@ -1,0 +1,192 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">📤 Upload Materi PDF</h1>
+    <p class="text-muted">
+      Unggah file PDF Anda untuk diproses dan gunakan untuk chatbot, ringkasan,
+      dan quiz.
+    </p>
+  </div>
+</div>
+
+<!-- Upload Form -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data" id="uploadForm">
+      <div class="upload-area" id="uploadArea">
+        <div style="font-size: 48px; margin-bottom: 12px">📎</div>
+        <div class="upload-text">Drag & Drop atau Klik untuk Upload</div>
+        <div class="upload-hint">Format: PDF | Max: 10MB</div>
+        <input
+          type="file"
+          name="pdf_file"
+          accept="application/pdf"
+          style="display: none"
+          id="pdfFile"
+          required
+        />
+      </div>
+      <div
+        id="fileName"
+        style="
+          margin-top: 12px;
+          display: none;
+          text-align: center;
+          color: #2563eb;
+          font-weight: 500;
+        "
+      ></div>
+      <button
+        type="submit"
+        class="btn btn-primary mt-3"
+        style="width: 100%"
+        id="uploadBtn"
+      >
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          style="display: none"
+          id="uploadSpinner"
+        ></span>
+        Unggah PDF
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Uploaded Files List -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title mb-4">📚 Daftar Materi Terunggah</h5>
+    {% if uploads %}
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      {% for item in uploads %}
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px;
+          background: #f9fafb;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          transition: all 0.2s;
+        "
+      >
+        <div style="flex: 1">
+          <div
+            style="
+              font-weight: 600;
+              color: #1f2937;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            📄 {{ item.filename }}
+          </div>
+          <div style="font-size: 13px; color: #6b7280; margin-top: 4px">
+            Diunggah: {{ item.uploaded_at[:10] }} {{ item.uploaded_at[11:16] }}
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px">
+          <a
+            href="{{ url_for('upload.view_pdf', filename=item.filename) }}"
+            target="_blank"
+            class="pdf-link"
+            title="Buka PDF"
+          >
+            👁️ Lihat
+          </a>
+          <form
+            method="post"
+            action="{{ url_for('upload.delete_upload', filename=item.filename) }}"
+            style="display: inline"
+            onsubmit="return confirm('Hapus file ini?');"
+          >
+            <button
+              type="submit"
+              class="pdf-link"
+              style="
+                background: #fee2e2;
+                color: #dc2626;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+              "
+              title="Hapus file"
+            >
+              🗑️ Hapus
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px 24px; color: #6b7280">
+      <div style="font-size: 48px; margin-bottom: 12px; opacity: 0.5">📭</div>
+      <p>
+        Belum ada file yang diunggah. Mulai dengan upload file pertama Anda!
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  // Drag & drop functionality
+  const uploadArea = document.getElementById("uploadArea");
+  const pdfFile = document.getElementById("pdfFile");
+  const fileName = document.getElementById("fileName");
+  const uploadBtn = document.getElementById("uploadBtn");
+
+  uploadArea.addEventListener("click", () => pdfFile.click());
+
+  uploadArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadArea.classList.add("dragover");
+    uploadArea.style.borderColor = "#2563eb";
+    uploadArea.style.background = "#eff6ff";
+  });
+
+  uploadArea.addEventListener("dragleave", () => {
+    uploadArea.classList.remove("dragover");
+    uploadArea.style.borderColor = "#d1d5db";
+    uploadArea.style.background = "#f9fafb";
+  });
+
+  uploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove("dragover");
+    uploadArea.style.borderColor = "#d1d5db";
+    uploadArea.style.background = "#f9fafb";
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      pdfFile.files = files;
+      showFileName(files[0].name);
+    }
+  });
+
+  pdfFile.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) {
+      showFileName(e.target.files[0].name);
+    }
+  });
+
+  function showFileName(name) {
+    fileName.textContent = "✓ " + name;
+    fileName.style.display = "block";
+    uploadBtn.disabled = false;
+  }
+
+  // Form submit
+  document
+    .getElementById("uploadForm")
+    .addEventListener("submit", function (e) {
+      uploadBtn.disabled = true;
+      document.getElementById("uploadSpinner").style.display = "inline-block";
+    });
+</script>
+{% endblock %}

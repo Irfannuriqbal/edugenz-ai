@@ -1,0 +1,77 @@
+{% extends "base.html" %} {% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">🎯 Buat Quiz Baru</h1>
+    <p class="text-muted">
+      Generate soal otomatis dari PDF yang telah diunggah
+    </p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-4">📚 Pilih Materi</h5>
+
+        <form method="post" id="quizForm">
+          <div class="mb-3">
+            <label for="filename" class="form-label fw-600">File PDF</label>
+            <select id="filename" name="filename" class="form-select" required>
+              <option value="">-- Pilih materi untuk di-quiz --</option>
+              {% for item in uploads %}
+              <option value="{{ item.filename }}">{{ item.filename }}</option>
+              {% endfor %}
+            </select>
+            {% if not uploads %}
+            <small class="text-muted d-block mt-2">
+              ℹ️
+              <a href="{{ url_for('upload.upload') }}"
+                >Upload materi terlebih dahulu</a
+              >
+              untuk membuat quiz
+            </small>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" id="generateBtn">
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              style="display: none"
+              id="quizSpinner"
+            ></span>
+            🎯 Generate Quiz
+          </button>
+        </form>
+
+        <div class="alert alert-info mt-4" role="alert">
+          <strong>💡 Tips:</strong> Quiz akan dihasilkan dengan 10 soal pilihan
+          ganda untuk menguji pemahaman.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-4">❓ Tipe Pertanyaan</h5>
+        <ul style="color: #6b7280; line-height: 2" class="mb-0">
+          <li>✅ Pilihan Ganda (A, B, C, D)</li>
+          <li>⏱️ Dapat dikerjakan kapan saja</li>
+          <li>📊 Otomatis perhitungan skor</li>
+          <li>📋 Review jawaban lengkap</li>
+          <li>💾 Semua quiz tersimpan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("quizForm").addEventListener("submit", function (e) {
+    document.getElementById("generateBtn").disabled = true;
+    document.getElementById("quizSpinner").style.display = "inline-block";
+  });
+</script>
+{% endblock %}

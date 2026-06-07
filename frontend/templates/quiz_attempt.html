@@ -1,0 +1,320 @@
+{% extends "base.html" %} {% block content %}
+<style>
+  .question-card {
+    background: white;
+    border: none;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .question-number {
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .question-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .option:hover {
+    border-color: #2563eb;
+    background-color: #f0f9ff;
+  }
+
+  .option input[type="radio"] {
+    margin-right: 1rem;
+    cursor: pointer;
+  }
+
+  .option input[type="radio"]:checked ~ .option-label {
+    color: #2563eb;
+    font-weight: 600;
+  }
+
+  .option label {
+    flex: 1;
+    cursor: pointer;
+    margin-bottom: 0;
+  }
+
+  .progress-bar-quiz {
+    height: 6px;
+    background-color: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: #2563eb;
+    transition: width 0.3s;
+  }
+
+  .navigation-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background: #f3f4f6;
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .submit-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    flex: 1;
+    transition: all 0.2s;
+  }
+
+  .submit-btn:hover {
+    background: #059669;
+  }
+</style>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h1 class="h3 mb-1">🎯 {{ quiz.title }}</h1>
+    <p class="text-muted">Quiz dari {{ quiz.filename }}</p>
+  </div>
+</div>
+
+<form
+  method="post"
+  id="quizForm"
+  action="{{ url_for('quiz.submit', quiz_id=quiz.id) }}"
+>
+  <div class="question-card">
+    <!-- Progress Bar -->
+    <div class="progress-bar-quiz">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+
+    <!-- Quiz Info -->
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      "
+    >
+      <div>
+        <span id="currentQuestion">Soal 1</span> dari
+        <span id="totalQuestions">{{ total }}</span>
+      </div>
+      <div
+        style="
+          background: #f0f9ff;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          color: #2563eb;
+          font-weight: 600;
+        "
+      >
+        <span id="progressPercent">0</span>%
+      </div>
+    </div>
+
+    <!-- Questions Container -->
+    <div id="questionsContainer"></div>
+
+    <!-- Navigation -->
+    <div class="navigation-buttons">
+      <button
+        type="button"
+        class="nav-btn"
+        id="prevBtn"
+        onclick="prevQuestion()"
+      >
+        ← Sebelumnya
+      </button>
+      <button
+        type="button"
+        class="nav-btn"
+        id="nextBtn"
+        onclick="nextQuestion()"
+      >
+        Selanjutnya →
+      </button>
+      <button
+        type="submit"
+        class="submit-btn"
+        id="submitBtn"
+        style="display: none"
+      >
+        ✓ Selesai & Lihat Hasil
+      </button>
+    </div>
+  </div>
+</form>
+
+<script>
+  let currentQuestionIndex = 0;
+  const questions = {{ questions | tojson }};
+
+  function renderQuestion(index) {
+    const question = questions[index];
+    const container = document.getElementById('questionsContainer');
+
+    let html = `
+      <div class="question-number">Soal ${index + 1} dari ${questions.length}</div>
+      <div class="question-text">${question.question}</div>
+      <div>
+    `;
+
+    // Render pilihan
+    for (const [key, value] of Object.entries(question.options)) {
+      const isChecked = sessionStorage.getItem(`answer_${index}`) === key ? 'checked' : '';
+      html += `
+        <div class="option">
+          <input type="radio" id="option_${key}" name="answer_${index}" value="${key}" ${isChecked}>
+          <label for="option_${key}">
+            <span style="font-weight: 600; color: #6b7280; margin-right: 0.75rem;">${key})</span>
+            <span class="option-label">${value}</span>
+          </label>
+        </div>
+      `;
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
+
+    updateProgress();
+    updateButtons();
+  }
+
+  function nextQuestion() {
+    // Save jawaban saat ini
+    const selected = document.querySelector('input[name="answer_' + currentQuestionIndex + '"]:checked');
+    if (selected) {
+      sessionStorage.setItem(`answer_${currentQuestionIndex}`, selected.value);
+    }
+
+    if (currentQuestionIndex < questions.length - 1) {
+      currentQuestionIndex++;
+      renderQuestion(currentQuestionIndex);
+    }
+  }
+
+  function prevQuestion() {
+    // Save jawaban saat ini
+    const selected = document.querySelector('input[name="answer_' + currentQuestionIndex + '"]:checked');
+    if (selected) {
+      sessionStorage.setItem(`answer_${currentQuestionIndex}`, selected.value);
+    }
+
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+      renderQuestion(currentQuestionIndex);
+    }
+  }
+
+  function updateButtons() {
+    document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+    document.getElementById('nextBtn').style.display = currentQuestionIndex === questions.length - 1 ? 'none' : 'block';
+    document.getElementById('submitBtn').style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+  }
+
+  function updateProgress() {
+    document.getElementById('currentQuestion').textContent = `Soal ${currentQuestionIndex + 1}`;
+    const percentage = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+    document.getElementById('progressPercent').textContent = percentage;
+    document.getElementById('progressFill').style.width = percentage + '%';
+  }
+
+  // Handle form submit dengan confirmation
+  document.getElementById('quizForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Save jawaban terakhir
+    const selected = document.querySelector('input[name="answer_' + currentQuestionIndex + '"]:checked');
+    if (selected) {
+      sessionStorage.setItem(`answer_${currentQuestionIndex}`, selected.value);
+    }
+
+    // Count soal yang sudah dijawab
+    let answeredCount = 0;
+    for (let i = 0; i < questions.length; i++) {
+      if (sessionStorage.getItem(`answer_${i}`)) {
+        answeredCount++;
+      }
+    }
+
+    // Show confirmation dialog
+    const unansweredCount = questions.length - answeredCount;
+    let confirmMessage = `✓ Jawaban: ${answeredCount}/${questions.length}`;
+
+    if (unansweredCount > 0) {
+      confirmMessage = `⚠️ ${unansweredCount} soal belum dijawab\n\nYakin ingin submit sekarang?`;
+    } else {
+      confirmMessage = `✓ Semua soal sudah dijawab\n\nYakin ingin submit dan lihat hasil?`;
+    }
+
+    if (confirm(confirmMessage)) {
+      // Populate form dengan semua jawaban
+      for (let i = 0; i < questions.length; i++) {
+        const answer = sessionStorage.getItem(`answer_${i}`);
+        if (answer) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = `answer_${i}`;
+          input.value = answer;
+          this.appendChild(input);
+        }
+      }
+
+      // Clear sessionStorage sebelum submit
+      for (let i = 0; i < questions.length; i++) {
+        sessionStorage.removeItem(`answer_${i}`);
+      }
+
+      // Submit form
+      this.submit();
+    }
+  });
+
+  // Initialize
+  renderQuestion(0);
+</script>
+{% endblock %}
