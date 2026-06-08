@@ -4,6 +4,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from werkzeug.utils import secure_filename
 from backend.services.gemini_service import extract_text_from_pdf
 from backend.utils import get_db_connection, allowed_file
+from backend.r2_storage import upload_file_to_r2
+
 
 upload_bp = Blueprint("upload", __name__)
 
@@ -23,6 +25,12 @@ def upload():
         filename = secure_filename(file.filename)
         save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
         file.save(save_path)
+
+        try:
+            upload_file_to_r2(save_path, filename)
+            print(f"Uploaded to R2: {filename}")
+        except Exception as exc:
+            print(f"R2 upload failed: {exc}")
 
         try:
             extracted_text = extract_text_from_pdf(save_path)
