@@ -2,9 +2,9 @@ import os
 import json
 from datetime import datetime
 from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for, session
-from utils import get_db_connection
-from services.gemini_service import extract_text_from_pdf, generate_quiz
-from services.quiz_service import parse_quiz_text, generate_random_correct_answers, calculate_score, get_question_result, get_badge_grade
+from backend.utils import get_db_connection
+from backend.services.gemini_service import extract_text_from_pdf, generate_quiz
+from backend.services.quiz_service import parse_quiz_text, generate_random_correct_answers, calculate_score, get_question_result, get_badge_grade
 
 quiz_bp = Blueprint("quiz", __name__)
 

@@ -1,12 +1,14 @@
 import sqlite3
 from pathlib import Path
 from flask import Flask, render_template, url_for, jsonify
+
 from backend.config import Config
-from utils import ensure_directories, get_db_connection
-from routes.upload_routes import upload_bp
-from routes.chatbot_routes import chatbot_bp
-from routes.summary_routes import summary_bp
-from routes.quiz_routes import quiz_bp
+from backend.utils import ensure_directories, get_db_connection
+
+from backend.routes.upload_routes import upload_bp
+from backend.routes.chatbot_routes import chatbot_bp
+from backend.routes.summary_routes import summary_bp
+from backend.routes.quiz_routes import quiz_bp
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

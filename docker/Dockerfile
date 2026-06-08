@@ -22,8 +22,6 @@ RUN pip install --upgrade pip && \
 # Copy application files
 COPY backend /app/backend
 COPY frontend /app/frontend
-COPY run.py /app/
-
 # Create uploads directory
 RUN mkdir -p /app/frontend/static/uploads && \
     mkdir -p /app/backend/database

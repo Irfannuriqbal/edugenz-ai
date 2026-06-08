@@ -2,8 +2,8 @@ import os
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, send_file
 from werkzeug.utils import secure_filename
-from services.gemini_service import extract_text_from_pdf
-from utils import get_db_connection, allowed_file
+from backend.services.gemini_service import extract_text_from_pdf
+from backend.utils import get_db_connection, allowed_file
 
 upload_bp = Blueprint("upload", __name__)
 

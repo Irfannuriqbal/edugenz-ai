@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, flash
-from utils import get_db_connection
-from services.gemini_service import ask_chatbot
+from backend.utils import get_db_connection
+from backend.services.gemini_service import ask_chatbot
 
 chatbot_bp = Blueprint("chatbot", __name__)
 

@@ -1,8 +1,8 @@
 import os
 from datetime import datetime
 from flask import Blueprint, render_template, request, flash, current_app, jsonify, redirect, url_for
-from utils import get_db_connection
-from services.gemini_service import extract_text_from_pdf, generate_summary
+from backend.utils import get_db_connection
+from backend.services.gemini_service import extract_text_from_pdf, generate_summary
 
 summary_bp = Blueprint("summary", __name__)
 
