@@ -10,4 +10,6 @@ frontend/uploads/*
 .vscode/
 .idea/
 
-*.logvenv/
+*.log
+
+venv/
