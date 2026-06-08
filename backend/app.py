@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 from flask import Flask, render_template, url_for, jsonify
-from config import Config
+from backend.config import Config
 from utils import ensure_directories, get_db_connection
 from routes.upload_routes import upload_bp
 from routes.chatbot_routes import chatbot_bp
